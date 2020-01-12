@@ -3,7 +3,7 @@
 
 '''
 
-chrome webdrive version 79.0.3945.36 win32
+chrome webdriver version 79.0.3945.36 win32
 
 https://chromedriver.storage.googleapis.com/index.html?path=79.0.3945.36/
 
@@ -24,20 +24,16 @@ import sys
 
 from PIL import ImageGrab
 import win32gui
-
+import config
 
 
 ###############################
 ### Cruesoe Proxy Settings ####
 ###############################
 
-crusoe_login_url = "X" # 
-crusoe_proxy_host_port = "host:port" 
-crusoe_proxy_exclusions = "Y"
-crusoe_hub_url = "http://IP:PORT/wd/hub"
-test_cycles_per_browser = sys.maxsize
+#crusoe_login_url = "X" # 
 
-DEFAULT_DELAY = 5
+DEFAULT_DELAY = 12
 TAKE_PICTURES = True
 input_list = ["hello","שלום","1",""]
 
@@ -53,9 +49,9 @@ def msg(text):
 
 class Tester():
     def __init__(self, username, password):
-        self.remote_hub_url = crusoe_hub_url 
-        self.proxy_host_port = crusoe_proxy_host_port
-        self.proxy_exclusions = crusoe_proxy_exclusions
+        self.remote_hub_url = config.crusoe_hub_url 
+        self.proxy_host_port = config.crusoe_proxy_host_port
+        self.proxy_exclusions = config.crusoe_proxy_exclusions
         self.success=0
         self.fail=0
         
