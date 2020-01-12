@@ -1,7 +1,7 @@
 import http.server
 import socketserver
 import socket
-socket.gethostbyname(socket.gethostname())
+
 
 class test_server():
     def __init__(self):
