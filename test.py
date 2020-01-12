@@ -247,5 +247,6 @@ class Tester():
             else:
                 self.fail+=1
 
-mytester = Tester("john", "doe")
+if __name__ == "__main__":
+    mytester = Tester("john", "doe")
 
