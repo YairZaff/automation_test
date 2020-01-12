@@ -185,22 +185,23 @@ class Tester():
         if not TAKE_PICTURES:
             return
         time.sleep(1)
+        toplist, winlist = [], []          
+        win32gui.EnumWindows(lambda hwnd,toplist : winlist.append((hwnd, win32gui.GetWindowText(hwnd))), toplist)
+        chrome = [(hwnd, title) for hwnd, title in winlist if 'chrome' in title.lower()]
+        chrome = chrome[0]
+        hwnd = chrome[0]
+        win32gui.SetForegroundWindow(hwnd)
+        bbox = win32gui.GetWindowRect(hwnd)
+        img = ImageGrab.grab(bbox)
         try:
             os.mkdir(self.scrnshot_dir)
         finally:
-            toplist, winlist = [], []          
-            win32gui.EnumWindows(lambda hwnd,toplist : winlist.append((hwnd, win32gui.GetWindowText(hwnd))), toplist)
-            chrome = [(hwnd, title) for hwnd, title in winlist if 'chrome' in title.lower()]
-            chrome = chrome[0]
-            hwnd = chrome[0]
-            win32gui.SetForegroundWindow(hwnd)
-            bbox = win32gui.GetWindowRect(hwnd)
-            img = ImageGrab.grab(bbox)
             img.save(self.scrnshot_dir+"/"+name+"_"+str(int(time.time()))+".jpg",format="JPEG")
 
     def test_cases(self, webdriver, input_list):
         self.alert_cases(webdriver,input_list)
-        self.confirm_cases(webdriver,input_list)
+        self.confirm_cases(webdriver)
+        self.confirm_cases(webdriver,False)
         self.prompt_cases(webdriver,input_list)
 
     def alert_cases(self, webdriver, input_list):
@@ -213,23 +214,17 @@ class Tester():
             else:
                 self.fail+=1
 
-    def confirm_cases(self, webdriver, input_list):
+    def confirm_cases(self, webdriver, confirm=True):
         # code: https://codepen.io/yairzaff/pen/ExaLvWp
         msg(" --- TESTING CONFIRMS ---")
-        self.confirm_check(webdriver,url="https://codepen.io/yairzaff/full/ExaLvWp?text=choice")
+        self.confirm_check(webdriver,url="https://codepen.io/yairzaff/full/ExaLvWp?text=choice",confirm=confirm)
         success = self.alert_check(webdriver,expect_value=True,text_value="ok") #currently checking the returned value in alert since i can't get console.log to work properly.
         if(success):
             self.success+=1
         else:
             self.fail+=1
-        self.confirm_check(webdriver,url="https://codepen.io/yairzaff/full/ExaLvWp?text=choice",confirm=False)
-        success = self.alert_check(webdriver, expect_value=True, text_value="cancel")
-        if(success):
-            self.success+=1
-        else:
-            self.fail+=1
 
-    def prompt_cases(self,webdriver,input_list):
+    def prompt_cases(self,webdriver,input_list,return_numbers_untill=15):
         # code: https://codepen.io/yairzaff/pen/yLyjgdg
         msg(" --- TESTING PROMPTS ---")
         for val in input_list:
@@ -239,7 +234,7 @@ class Tester():
                 self.success+=1
             else:
                 self.fail+=1
-        for i in range(30):
+        for i in range(return_numbers_untill):
             self.prompt_check(webdriver, url="https://codepen.io/yairzaff/full/yLyjgdg", confirm=True, text_input=str(i))
             success = self.alert_check(webdriver, expect_value=True, text_value=str(i))
             if(success):
