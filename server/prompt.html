@@ -1,0 +1,18 @@
+<html>
+<head>
+    <title>alert</title>
+</head>
+<body>
+
+    <p>user entered in promp:</p><br>
+    <h1 id="test"></h1>
+
+    <script>
+    var inp=prompt("input: ")
+    document.getElementById("test").innerHTML = inp
+    setTimeout(function(){alert(inp)},500)
+    console.log(inp)
+    </script>
+
+</body>
+</html>

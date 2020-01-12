@@ -1,0 +1,24 @@
+<html>
+<head>
+    <title>alert</title>
+</head>
+<body>
+    
+    <p>alert text:</p>
+    <h1 id="text"></h1>
+
+    <script>
+    function getUrlVars() 
+    {
+        var vars = {};
+        var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+            vars[key] = value;
+        });
+        return vars;
+    }
+    document.getElementById("text").innerHTML = getUrlVars()["text"]
+    alert(decodeURI(getUrlVars()["text"]))
+    </script>
+
+</body>
+</html>

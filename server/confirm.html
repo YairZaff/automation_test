@@ -1,0 +1,33 @@
+<html>
+<head>
+    <title>alert</title>
+</head>
+<body>
+    <p>confirm. user choose:</p>
+    <h1 id="choice"></h1>
+
+    <script>
+    function getUrlVars() {
+        var vars = {};
+        var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+            vars[key] = value;
+        });
+        return vars;
+    }
+
+    var choice=confirm(getUrlVars()["text"])
+    var h=document.getElementById("choice")
+    if(choice==true)
+    {
+    h.innerHTML = "ok"
+    }
+    else
+    {
+    h.innerHTML = "cancel"
+    }
+    console.warn(h.innerHTML)
+    setTimeout(function(){ alert(h.innerHTML); }, 500);
+    </script>
+
+</body>
+</html>

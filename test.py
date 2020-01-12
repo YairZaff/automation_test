@@ -16,6 +16,8 @@ from selenium.webdriver.support.ui  import WebDriverWait                       #
 from selenium.webdriver.support  import expected_conditions as EC              #exception conditions 
 from selenium.common.exceptions  import TimeoutException                       
 
+import requests
+
 import time
 import threading
 import datetime
@@ -25,7 +27,6 @@ import sys
 from PIL import ImageGrab
 import win32gui
 import config
-
 
 ###############################
 ### Cruesoe Proxy Settings ####
@@ -54,8 +55,6 @@ class Tester():
         self.proxy_exclusions = config.crusoe_proxy_exclusions
         self.success=0
         self.fail=0
-        
-        msg ("Connecting to web driver on hub: " + self.remote_hub_url)
         #webdriver = self.connect_remote_chrome_webdriver_with_proxy(self.remote_hub_url, self.proxy_host_port, self.proxy_exclusions)
         webdriver = self.connect_my_driver() # i dont have access to crusoe's proxy
         self.time_start = str(int(time.time()))
@@ -69,6 +68,7 @@ class Tester():
             webdriver.quit()
 
     def connect_remote_chrome_webdriver_with_proxy(self, remote_hub_url, proxy_host_port, proxy_exclusions):
+        msg ("Connecting to web driver on hub: " + self.remote_hub_url)
         options = webdriver.ChromeOptions()
         options.add_argument('--proxy-server=%s' % proxy_host_port)
         options.add_argument('--proxy-bypass-list=%s' % proxy_exclusions.replace(',',';'))
@@ -82,6 +82,7 @@ class Tester():
         return driver
 
     def connect_my_driver(self):
+        msg ("starting local chrome driver: ")
         d = DesiredCapabilities.CHROME
         d['goog:loggingPrefs'] = { 'browser':'ALL' }
         options = webdriver.ChromeOptions()
@@ -203,45 +204,55 @@ class Tester():
         self.confirm_cases(webdriver)
         self.confirm_cases(webdriver,False)
         self.prompt_cases(webdriver,input_list)
-
+        self.prompt_cases(webdriver,15)
     def alert_cases(self, webdriver, input_list):
-        # code:  https://codepen.io/yairzaff/pen/YzPLQrv
         msg(" --- TESTING ALERTS ---")
         for val in input_list:
-            success = self.alert_check(webdriver, url="https://codepen.io/yairzaff/full/YzPLQrv?text="+val, expect_value=True, text_value=val)
+            success = self.alert_check(webdriver, url="http://127.0.0.1:8000/alert.html?text="+val, expect_value=True, text_value=val)
             if(success):
                 self.success+=1
             else:
                 self.fail+=1
 
     def confirm_cases(self, webdriver, confirm=True):
-        # code: https://codepen.io/yairzaff/pen/ExaLvWp
         msg(" --- TESTING CONFIRMS ---")
-        self.confirm_check(webdriver,url="https://codepen.io/yairzaff/full/ExaLvWp?text=choice",confirm=confirm)
-        success = self.alert_check(webdriver,expect_value=True,text_value="ok") #currently checking the returned value in alert since i can't get console.log to work properly.
+        expect="ok"
+        if not confirm:
+            expect = "cancel"
+        self.confirm_check(webdriver,url="http://127.0.0.1:8000/confirm.html?text=choice",confirm=confirm)
+        success = self.alert_check(webdriver,expect_value=True,text_value=expect) #currently checking the returned value in alert since i can't get console.log to work properly.
         if(success):
             self.success+=1
         else:
             self.fail+=1
 
-    def prompt_cases(self,webdriver,input_list,return_numbers_untill=15):
-        # code: https://codepen.io/yairzaff/pen/yLyjgdg
+    def prompt_cases(self,webdriver,input_list):#,return_numbers_untill=15):
         msg(" --- TESTING PROMPTS ---")
+        if isinstance(input_list,int):
+            input_list=range(input_list)
         for val in input_list:
-            self.prompt_check(webdriver, url="https://codepen.io/yairzaff/full/yLyjgdg", confirm=True, text_input=val)
-            success = self.alert_check(webdriver, expect_value=True, text_value=val)
+            self.prompt_check(webdriver, url="http://127.0.0.1:8000/prompt.html", confirm=True, text_input=str(val))
+            success = self.alert_check(webdriver, expect_value=True, text_value=str(val))
             if(success):
                 self.success+=1
             else:
                 self.fail+=1
-        for i in range(return_numbers_untill):
-            self.prompt_check(webdriver, url="https://codepen.io/yairzaff/full/yLyjgdg", confirm=True, text_input=str(i))
-            success = self.alert_check(webdriver, expect_value=True, text_value=str(i))
-            if(success):
-                self.success+=1
-            else:
-                self.fail+=1
+       
+
+def server_ok():
+    server_online = True
+    try:  
+        rq = requests.get("http://127.0.0.1:8000")
+        if(rq.status_code!=200):
+            server_online = False
+    except:
+        server_online = False
+    if not server_online:
+        print("local server offline, please start server and press enter")
+        input()
+        server_ok()
 
 if __name__ == "__main__":
+    server_ok()
     mytester = Tester("john", "doe")
 
